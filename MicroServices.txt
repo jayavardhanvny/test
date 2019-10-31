@@ -1,0 +1,528 @@
+IMPORTANT POINTS
+--> Micro-service is 50% Configuration and 50% Coding
+--> Micro-services developed using Spring Boot.
+--> Spring - Boot depends on Maven.
+--> All RESTful services are web services.
+--> Web Application used/called by end users. Web services(Ex: REST services) are accessed/used by one of any web application.
+--> Web services are two types. REST and SOAP.
+--> Web application called by end user.
+--> Web services contain number of services. These services are called by another application.
+
+Note :
+	@Controller used in MVC. It returns model and view. Here view execute in JSP and return html & data.
+	@RestController used in REST. It returns data or ResponseEntity. ResponseEntity contain response code, data, errors, JSON. . .
+
+--> @RestController mainly returns data. That data is used by another application. So a rest controller mainly focuses on data.
+--> Web services are inter-operable : Means Application independent while communicating.
+
+Note: A web application runs in browser.
+
+--> Any client application(Angular, JSP, PHP, Android etc) can communicate with REST application.
+--> Micro-services purely depends on REST services.
+
+--> Standalone applications(developed by Java FX, Swings etc) can call Rest application. So a rest application
+	can be called by any application(Standalone, web application, mobile application etc)
+
+
+WHAT IS MICROSERVICES ?
+	It is a rest application. Instead of containing a big rest application, it divide into small rest application and is integrated with cloud.
+So individual rest applications together known as micro-services. Here if there are 10 applications then we can develop those ten applications 
+in different languages. With all those applications, this rest service can interact even though they deployed in their respective servers i.e.,
+dot net application in dot net server, php application in php server etc.
+	
+									or
+	Micro-service architecture (MSA) is an approach to building software systems that decomposes business domain models into smaller, consistent, 
+bounded-contexts implemented by services.  These services are isolated and autonomous yet communicate to provide some piece of business functionality.
+Micro-services are typically implemented and operated by small teams with enough autonomy that each team and service can change its internal 
+implementation details (including replacing it outright!) with minimal impact across the rest of the system.
+
+BUT WHEN WE ARE DIVIDING THESE APPLICATIONS, THERE ARE SOME CHALLENGES. TO OVERCOME THESE CHALLENGES WE GOT SOME TOOLS
+	i.   Cloud
+	ii.  Clustering (deploying same application in multiple servers. Load Balancer and Fail-over overcomes by using clustering)
+	iii. Service registry (Here we use Eureka)
+	iv.  Config server (For maintaining configuration of all applications)
+	v.   Bus (If we change anything in config server, those changes are intimated to other servers)
+
+WHAT IS CLOUD ?
+	Cloud resides in a network. Contains number of servers and applications aimed to build a big project.
+Each server and application is responsible for specified activity which is part of big project.
+
+BENEFITS/USES OF USING MICROSERVICES 
+--> With microservices, we can scope the boundaries of a service, which helps us:
+* Distributed version configuration.
+		It is present in " src/main -> config -> app.properties "
+		In this app.properties we define our server configuration.
+		This is mentioned in configuration server.
+* Service to service : done using RestTemplate
+* Routing : By using Zuule server
+* Service Registration and Discovery :  Eureka server
+* Load Balancing : Balance the requests.
+* Continues delivery or updating of application is done without disturbing existing application.
+* High availability : Available at any time without any disturbance.
+* Down time : Server can down for certain time which is allowed by client. Beyond that down time, server is not 
+			  allowed to down. We can overcome down time by using micro services.
+• Understand what the service is doing without being tangled into other concerns in a larger application.
+• Quickly build the service locally
+
+
+WHY I SHOULD USE MICRO SERVICES ?
+--> Change in one application doesn't effect another application.
+--> Continues integration(adding new code for existing code) doesn't effect existing code.
+--> Continues updating doesn't effect existing application.
+	Previously if we want to add new feature to an existing application, first it has to down and later has to modify the application. But in 
+	micro-services no need to down the existing application. 
+		Just like how honey-bee makes its nest, if it want to add new room, existing room wont get effected.
+
+DRAWBACKS OF USING MICROSERVICES
+--> more resource intensive
+--> Operational complexity is a lot higher
+--> It becomes very difficult to understand the system holistically
+--> It becomes significantly harder to debug problems. 
+--> Designing cloud-native applications following a microservices approach requires thinking differently about how to build, deploy, and operate them.
+
+Note : Building distributed systems is different from building shared-memory, single process, monolithic applications.
+
+WE HAVE TO KEEP 5 THINGS IN MIND WHILE DEVELOPING MICROSERVICES
+--> This section will identify five main things to keep in mind when developing microservices
+i) Design for Faults
+	--> Building distributed systems is different from building shared memory, single process, monolithic applications.
+	--> Calls over the network can fail for any number of reasons (e.g., signal strength, bad cables/routers/switches, and firewalls), and this can be
+		a major source of bottlenecks
+	--> What if the downstream application you must call takes longer than normal to respond?
+ii) Design with Dependencies in Mind
+	--> we have to design systems with dependency thinking in mind
+	--> One of the goals with microservices is to take advantage of autonomous teams and autonomous services. This means being able to change things 
+		as quickly as the business needs without impacting those services around you or the system at large.
+iii) Design with the Domain in Mind
+iv) Design with Promises in Mind
+	--> In a microservice environment with autonomous teams and services, it’s very important to keep in mind the relationship between service 
+		provider and service consumer
+v) Distributed Systems Management
+	--> As we discussed earlier, however, microservices are not free; the trade-off for having flexibility and scalability is having to manage a 
+		complicated system
+
+
+WHAT IS REST TEMPLATE ?
+	Rest template used to communicate between multiple rest applications.
+		
+WHAT IS LOADBALANCER ?
+	Here we deploy same application in multiple servers, if one server got more requests and if that server is getting down, then another server gets 
+activated. Which is nothing but load balancing.
+	We write @LoadBalanced above RestTemplate
+		
+	Ex :	@LoadBalanced 
+			private RestTemplate rt;
+
+FLOW OF MICROSERICES ?
+
+
+HOW TO CREATE EUREKA SERVER ?
+	Goto spring initializer -> fill properties 
+	Dependency : web, eureka server 
+	Annotation : @EnableEurekaServer for main class 
+	Properties : Server-port : 8080
+
+HOW EUREKA CLIENT IS CONFIGURED ?
+-> It wont receive any request. It checks only for registration.
+	Goto spring initializer -> fill properties 
+	Dependency : web, eureka discovery
+	Annotation : @EnableEurekaClient
+	Properties : Server-port : 8081
+				 eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka
+
+-> As it receives all requests, we have to configure it in properties file like below 
+	zuul.routes.one.path=/ANILCLIENT/**
+	zuul.routers.one.serviceId:callinganilclient
+	
+HOW TO CREATE ZUULE SERVER ?
+-> Zuule server receives all requests.
+	Dependency : web, zuule server 
+	Annotation : @EnableZuulProxy
+				 @EnableEurekaClient
+	Properties : server.port=8094
+				 spring.application.name:ZuuleServer
+				 eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka
+
+HOW TO CREATE CONFIGURATION SERVER ?
+	Dependency : web, config server 
+	Annotation : @EnableConfigServer
+	Properties : We declare all servers and their properties in this properties file. 
+				 This file can be in any location and we can specify that path.
+				 Ex : spring.cloud.config.server.native.searchLocations: classpath:/config
+	
+HOW TO CREATE AUTHORIZATION SERVER ?
+-> Used for generating token for security purpose.
+	Dependency : web, security
+	Annotation : @EnableGlobalMethodSecurity
+	Properties : 
+				security.user.name = puli
+				security.user.password = puli123
+
+HOW TO CONNECT REST APP TO EUREKA SERVER ?
+	Property or Properties : eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka
+	
+HOW TO CONNECT REST APP TO ZUULE SERVER ?
+	Property or Properties : 
+	
+HOW TO CONNECT REST APP TO CONFIGURATION SERVER ?
+	Property or Properties : in bootstrap.properties
+							 spring.application.name:ConfigServerResponse
+							 spring.cloud.config.enabled:true
+							 spring.cloud.config.uri:http://localhost:8095
+	
+HOW TO CONNECT REST APP TO AUTHORIZATION SERVER ?
+	Property or Properties : 
+
+HOW TO CONNECT ZUUL TO EUREKA SERVER ?
+	Property or Properties : eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka
+
+HOW TO CONNECT ZUUL TO AUTHORIZATION SERVER ?
+	Property or Properties : 
+
+WHAT IS CLUSTERING ?
+	One micro rest application can have multiple servers. If lot of requests came to one port, 
+then it shift to another port server. So clustering mean, single application is deployed in multiple
+servers. So that an application cannot get down.
+	By using clustering we can do load balancing and 'make over' i.e., if there are 1L requests at a time
+then 'make over' is performed and those requests are shared by other servers which contain same application.
+
+	
+WHAT IS LOGGING AND DEBUGGING ? HOW IT IS DONE ?
+	By using Splunk we are doing it. As logging is done in a file, splunk take all log files 
+and provide exact details about logging, where it is, any existing problems etc.
+	intellipaat.com/tutorial/splunk-tutorial/
+
+
+USES/PRINCIPLES/MOTIVE/PURPOSE OF MICROSERVICES ?
+
+
+WHAT IS EUREKA SERVER ?
+	Also called lookup server or registry server. There are lots of benefits when we register with EUREKA server, some are LoadBalancing etc. 
+Eureka server is only for registration purpose.
+
+Note : Parallely one application acts as client for one application and server for another application.
+	   @EnableJpaRepository("com.io.xyz") //Enables DAO files
+	   @PropertySource("classpath:db.config.properties") // Targeting properties file
+	   @Configuration (creating beans in class file, instead of in xml file)
+	   @Bean(For creating bean)
+	   @Autowire ( Says to inject automatically)
+	   
+WHAT IS ZUUL SERVER ?
+	Also called as gateway server. It's service is getting request and providing response. Zuul take help of Eureka server and it access ribbon to 
+process the request in appropriate rest application. Zuul is also part of eureka server and is also client of eureka. Because if zuul got a request and
+to process that request, it has to goto eureka server. So it acts as client to eureka server.
+	So when we are passing client request,as it has to pass through zuul server, we have to use zuul port number. 
+		Example if zuul runs in 8094 port number then :
+			" http://localhost:8094/HARICLIENT/haricontroller "
+			
+			8094 : Port number where zuul is running
+			HARICLIENT : is one of the client we want to call
+			HARICLIENT/haricontroller : 'haricontroller' is the request mapping method
+			
+What is Configuration server ?
+	All the applications configuration is provided in this configuration server. Here all the applications register their configuration. Here 
+Configuration is provided in configuration server for every Rest Application as a property file.
+
+Note : If we want to change one client to another client, we have to modify/add " Dependency, Annotation, Properties "
+	   In pom.xml, add dependencies
+	   In properties file, add the server location, example for eureka "eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka "
+	   Annotation , example if making eureka client "@EnableEurekaClient" 
+
+What is Authorization Server ?
+		We implemented using " Spring Security and JWT ". We know just how to implement JWT. Authorization server return token. Internally token 
+	is generated by JWT. This token is used by spring security.
+		We implemented spring security by using " DelegatingFilterProxy " in spring. 
+	But in spring boot it is different :
+	i) Goto spring initializer
+	ii) Take dependency options as "web, security"
+	iii) Write our code.
+	
+	Here Spring Security dependency will look after security. We no need to add configuration, security e.t.c
+	
+How to implement security in spring boot ?
+	i) Goto spring initializer
+	ii) Take dependency options as "web, security"
+	iii) Take 3 classes where one class implement "UserDetailsService", another implement "WebSecurityConfigurerAdapter", another 
+		class implement "UserDetails" and another class "GrantedAuthority"
+	iv) Now we mention Rest Application as "Resources". This resource will again contact Authorization server, bcz token is generated by
+		Authorization server. So we have to provide link of Authorization server in Resource.
+	Note: Zuul also acts as client for Authorization server, Eureka server.
+		  Tell to interviewer that, our Authorization server with JWT was implemented by Architect and we are just using it
+	v) 
+	
+Note : Goto url --> Network --> Check 'token' in 'Name' column --> In headers, Check in Request Method : Options, if it is options, then there is 
+	   fault in Oauth configuration, which is declared in your main class.
+		
+What is clustering ?
+	If same application is run by different servers, then it is called as clustering.
+
+How to access any Rest Application ?
+	Every module is developed as Rest Application. To access any Rest Application, first client need to get a token by proving authentication details. 
+By using that token, client can access any Rest Application through Zuul gateway server(Proxy router).
+
+What is Authorization server ?
+	Before processing a request Rest Application contact with authorization server to verify token authorization and authentication.
+
+What is microservices ?
+
+Who is producer or producer application ?
+	All our microservices code deployed in a server is producer application.
+	
+Who is consumer or what is consumer application ?
+	Here Angular-2 is our consumer application.
+	
+EXAMPLE OF MICROSERVICES
+	When we turn-on our smart phone, we can see time, weather information, traffic info e.t.c Here our android app is consumer application and the 
+weather information provided by another server. Here our application access that server and show information to us. Similarly any other things like,
+mapping, traffic updates e.t.c
+	So here weather information providing server is only one, but we can access it through android, IOS, Windows OS e.t.c. So here it is one 
+micro-service provided server but multiple consumer applications.
+
+
+Note: Business logic present in RestServices and this RestService is client for all above servers(EUREKA,Zuule,ConfigServer e.t.c).
+
+Who has userId and password ?
+	End user
+
+Who has clientId secret ?
+	Consumer Client contains it. If any user wants to interact with server(producer), then that client register has to go through any client secret.
+When sending request, the producer receives "end user userId & password along with client-secret". That particular producer identifies the request 
+and gievs the response.
+	
+Note: One user can interact with any producer using any client service.
+	
+GENERAL PROCESS OF ACCESSING A PRODUCER
+	Open Consumer App -> Provide UserName & Password -> Provide ClientId & Secret -> Get the token -> Access the application
+
+	
+WHAT WE LEARN HERE ?
+1. Testing micro-services which are already running.
+2. How to run all servers in rest micro-services.
+3. How to develop servers.
+
+		
+	1. HOW TO DO TESTING/ACCESS SERVER MANUALLY
+		i) Provide link in your rest client which contains username,password and cliendId & secret. Select method POST
+			Example : http://192.168.0.6:8989/auth/oauth/token?username=guest&password=guest123&grant_type=password
+			
+		ii) Now you asked for client userId and secret. Enter those details and press 'Accept'
+			
+		iii) Now you get token as response 
+		
+		iv) Now take new rest client , provide link of server what you want to access, and select " method : GET "
+			-> In header tab, provide
+				header-name : Authorization
+				header-value : bearer token-link
+		
+		v) Click 'send', now you can access the server.
+		
+	2. HOW TO RUN ALL SERVERS IN REST MICROSERVICES
+		i) Run Authorization server. Now goto command prompt "spring-boot:run" ('spring-boot' is plugin and 'run' is goal)
+		ii) Run Eureka server. Now goto command prompt "spring-boot:run" 
+		iii) Run Configuration server. Now goto command prompt "spring-boot:run" 
+		iv) Run Zuule server . Now goto command prompt "spring-boot:run" 
+		v) Last we have to run sample-service. Now goto command prompt "spring-boot:run" 
+		
+		
+		Note: Order of running the servers are "Authorization, Configuration, Eureka, Zuule, Configure server(Surely it has to be last) "
+			  End user has "UserName & Password"
+			  Consumer has "ClientId & Secret "
+
+			  
+DEVELOPING OWN SERVERS :
+
+1. EUREKA SERVER
+	i. Goto spring initializer
+	ii. In dependencies, mention " web, Eureka Server "
+	iii. Generate project
+	iv. We have to provide some dependencies in pom.xml
+		-> In dependencies, if you saw " spring - cloud - starter - eureka - server " then it is server.
+						    if you saw " spring - cloud - starter - eureka " then it is client.
+		-> Here dependency is already done my MAVEN.
+	v) Provide " @EnableEurekaServer " above your main class
+	vi) If we want to specify a port number where our eureka has to run, specify port number in " src/main/resources -> application.properties -> server.post=8080
+	
+	Hence server is created
+			  
+2. To create RestClient
+	i. Goto spring initializer
+	ii. In dependencies, mention " web, Eureka Discovery "
+	iii. Import project to your IDE
+	iv. In your main class, mention " @EnableEurekaClient "
+	v. If we want to specify a port number where our client has to run, specify port number in " src/main/resources -> application.properties -> server.post=8081
+	
+	Note : Business logic present in RestServices and this RestService is client for all above servers(EUREKA,Zuule,ConfigServer e.t.c).
+	
+3. Communicating Client and Server 
+	i. If we want client to communicate with eureka server, then mention where the eureka server is located like below in your application.properties file
+			eureka.client.serviceUrl.defaultZone:http://localhost:8000/eureka
+	ii. We can also specify name for our client like below 
+			spring.application.name:client-app-name
+			
+
+
+
+Note: COMMUNICATION BETWEEN CLIENT, ZUUL SERVER, EUREKA SERVER AND CONFIGURATION SERVER 
+
+	i) First client request goes to Zuul server 
+	ii) In Zuul application.properties file, all clients get registered.
+	iii) Now it will open client application by checking whether it registered in eureka or not
+		 Note : Eureka will look after load balancing, as every server get registered here.
+	iv) In client application, we specified bootstrap.properties file , where we provide server details inorder to connect with :
+		Example :
+			     spring.cloud.config.uri:http://localhost:8095 (Is the server you want to connect with)
+				 spring.application.name:ConfigServerResponse (ConfigServerResponse is the name of " .properties " file in your server specified above)
+				 spring.cloud.config.enabled:true (making server enabled as true)
+	v) Now it will open that " ConfigServerResponse.properties " file in the server you specified, and based on the configuration you provided in that 
+	   file, it will connect to that particular database
+		Example :
+				   spring.datasource.url = jdbc:mysql://localhost:3306/ordermanagement
+				   spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+				   spring.datasource.username = root
+				   spring.datasource.password = Root
+				   spring.jpa.show-sql = true
+				   spring.jpa.hibernate.ddl-auto = update
+				   spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
+				   
+					
+HOW A REQUEST SENT BY THE CLIENT, GOES TO PARTICULAR EUREKA SERVER, IF THERE ARE MULTIPLE EUREKA SERVERS ?
+	Here if there are 5 eureka servers, then which eureka server, the client request has to go ? So in properties file we mention that 
+		" eureka.client.serviceUrl.defaultZone : http://localhost:8080/eureka
+		
+	Now to which application, the request has to go ?
+		In the properties file :
+			 spring.application.name:application-name 
+	
+IF WE WANT TO CALL BETWEEN SERVICE-TO-SERVICE, REST-TO-SERVICE, REST-TO-REST 
+	We use RestTemplate. It is placed above a method.
+	
+WE CAN CALL APPLICATION DIRECTLY WITHOUT PROVIDING PORT NUMBER, BUT BY GIVING APPLICATION NAME :
+
+HOW A LOADbALANCER WORKS ?
+	Based on 'Ribbon' load balancer works. A 'ribbon' is a component
+	
+WHAT IS LOOSELY COUPLED
+	Modification in one class or in one layer must not effect another class or another layer.
+
+WHAT IS TIGHTLY COHESION
+	Wrapping up of data and methods into single class called encapsulation. This encapsulation properties must be related to or linked to each other.
+Student contain properties like name, standard, roll num etc. But dosent contain salary, pay scale etc. So Student data has to contain only student 
+related properties which are known as tightly cohesion.
+	Even though if we write any other properties, we dont get any error, but the design or structure is wrong.
+	
+WHAT IS SOLID FORMULA 
+	SOLID : Single 
+	
+WHAT IS UTILITY ?
+	Common logic is written in utility.
+			  
+GENERAL EXCEPTIONS
+1. java.array.util cannot be cast to springframework.http.ResponseEntity
+		i) Check whether you wrote @RequestBody in your controller at specified method
+
+2. 415 error
+		Check the type of mode you are sending the raw-data in advanced rest client. (Hint : JSON/ any other)
+		
+INTERVIEW QUESTIONS
+1. What is eureka server ?
+
+2. In how many ways, microservice registers itself in the Eureka server ?
+		Every microservice registers itself in the Eureka server when bootstrapped, generally using the {ServiceId} it registers into the Eureka server,
+	or it can use the hostname or any public IP (if those are fixed).
+	
+3. what is the Eureka server itself?
+		The Eureka server is nothing but another microservice which treats itself as a Eureka client.
+
+4. In how many modes, eureka server works in ?
+		The Eureka server works in two modes:
+	i) Standalone: 
+			In local, we configure a stand-alone mode where we have only one Eureka server (localhost) and the same cloning property from itself.
+	ii) Clustered: 
+			we have multiple Eureka servers, each cloning its states from its peer.
+			
+5. Advantage of using Zuul ?
+		common aspects like CORS, authentication, and security can be put into a centralized service, so all common aspects will be applied on each 
+	request, and if any changes occur in the future, we just have to update the business logic of this Edge Service.
+	
+6. What is Zuul? What tasks it can perform ?
+	   Zuul is the front door for all requests from devices and websites to the backend of the Netflix streaming application. As an edge service 
+	application, Zuul is built to enable dynamic routing, monitoring, resiliency, and security. 
+		Zuul is a JVM-based router and server side load balancer by Netflix.
+		
+7. What types of filters does zuul uses ?
+		Zuul uses a range of different types of filters that enables us to quickly and nimbly apply functionality to our edge service. These filters 
+	help us perform the following functions: 
+
+	i) Authentication and Security: 
+			identifying authentication requirements for each resource.
+	ii)Insights and Monitoring: 
+			tracking meaningful data and statistics.
+	iii) Dynamic Routing: 
+			dynamically routing requests to different backend..
+	iv) Stress Testing: 
+			gradually increasing the traffic.
+	v) Load Shedding: 
+			allocating capacity for each type of request and dropping requests.
+	vi) Static Response handling: 
+			building some responses directly.
+	vi) Multiregion Resiliency: 
+			routing requests across AWS regions.
+			
+8. What components does zuul contain ?
+		Zuul contains multiple components:
+
+	i) zuul-core: 
+		  library that contains the core functionality of compiling and executing Filters.
+	ii) zuul-simple-webapp: 
+			webapp that shows a simple example of how to build an application with zuul-core.
+	iii) zuul-netflix: 
+			library that adds other NetflixOSS components to Zuul — using Ribbon for routing requests, for example.
+	iv) zuul-netflix-webapp: 
+			webapp which packages zuul-core and zuul-netflix together into an easy to use package.
+			
+9. What is embedded zuul proxy ?
+		Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls 
+	to one or more back end services. 
+	
+10. What is the benefit of using Central Config Server ?
+		The benefit of a central config server is that if we change a property for a microservice, it can reflect that on the fly without redeploying 
+	the microservice.
+		Before the microservices era, we created a properties files where we maintained our configurable parameters so that if we changed the parameter
+	values or added or deleted a parameter, we generally needed to restart the application container.
+		so any changes in the properties file means rebuilding and redeploying the application, which is a violation of the microservices principle, 
+	which clearly states: " Build just once and deploy it in any environment "
+	
+11. In what way does microservice store property ?
+		Based on " ServiceId "
+		
+	Note : The config server stores each microservice property based on the Service ID. We can configure the microservice Service iD by giving a unique
+		   value of spring.application.name property in the bootstrap.properties file for that microservice.
+		   
+12. What stages does spring cloud config server architecture contains ?
+
+	i) Repository area: The config server stores all microservices property files in a version control system so they can be... version controlled.
+						The config server stores each microservice property based on the Service ID.
+						
+	ii) REST endpoint: Every microservice needs to communicate with the config server so it can resolve the property value, as all properties are 
+					   stored in thre. The config server publishes a REST endpoint through which microservices communicate, or we can see the 
+					   properties in a browser.
+
+	III) Actuator: If any properties for a microservice have been changed, that means they have been refreshed through an Actuator refresh REST 
+				   endpoint. By doing this, our microservice got updated without rebuilding the application.
+
+	iv) Cloud bus: This is optional but very useful. Think if we needed to refresh the actuator endpoint manually for each service. That would be a 
+				   hectic task, as a complex business domain has many microservices. In this scenario, the cloud bus helps to push the updated 
+				   properties to all its subscribed microservices. But to trigger this action, we need to manually refresh one microservice endpoint. 
+				   I will talk later about the cloud bus.
+
+	v) Load balancer: The config server should be highly available. If we maintain only one config server box/container, it would be a single point of 
+				      failure. Ideally, it should be load balanced so that we can run multiple instances of config servers, and the load balancer pool 
+					  should have one public address where every microservice communicates.
+					  
+13. Where do you used Enum in your project ?
+		@RequestMapping(method="HttpMethod.POST") is a constant we used above the required method.
+		
+14. WHY WE ARE TAKING "openSession()" but not creating "SessionFactory s = new Session() "
+	Because we no need to write logic for creation of Session object and all the details required to set the session.
+	SessionFactory abstracts the complex logic to create object i.e., session object. Here FactoryMethod is one of design pattern we use for it.
+	
